@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^6.0.2"
+  },
+  "type": "module",
+  "name": "sprintflow-mcp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PraneethBunny123/SprintFlow-MCP.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PraneethBunny123/SprintFlow-MCP/issues"
+  },
+  "homepage": "https://github.com/PraneethBunny123/SprintFlow-MCP#readme"
+}
