@@ -1,0 +1,56 @@
+{
+    "id": 1,
+    "category": "Authentication",
+    "title": "Password Strength Policy",
+    "rule": "Passwords must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+    "description": "Ensures that user passwords meet minimum complexity requirements to reduce risk of unauthorized access."
+  },
+  {
+    "id": 2,
+    "category": "Authorization",
+    "title": "Role-Based Access Control",
+    "rule": "Users can only access resources based on their assigned roles.",
+    "description": "Implements RBAC to restrict system access to authorized users only."
+  },
+  {
+    "id": 3,
+    "category": "Data Security",
+    "title": "Data Encryption",
+    "rule": "All sensitive data must be encrypted at rest and in transit.",
+    "description": "Protects sensitive information from being exposed during storage or transmission."
+  },
+  {
+    "id": 4,
+    "category": "API",
+    "title": "Rate Limiting",
+    "rule": "Limit API requests to 100 requests per minute per user.",
+    "description": "Prevents abuse and ensures fair usage of API resources."
+  },
+  {
+    "id": 5,
+    "category": "Logging",
+    "title": "Error Logging",
+    "rule": "All application errors must be logged with timestamps and error details.",
+    "description": "Helps in debugging and monitoring application health."
+  },
+  {
+    "id": 6,
+    "category": "Performance",
+    "title": "Response Time",
+    "rule": "API responses should be under 300ms for standard requests.",
+    "description": "Ensures optimal performance and good user experience."
+  },
+  {
+    "id": 7,
+    "category": "Compliance",
+    "title": "GDPR Compliance",
+    "rule": "User data must be handled in accordance with GDPR regulations.",
+    "description": "Ensures legal compliance for users in applicable regions."
+  },
+  {
+    "id": 8,
+    "category": "Backup",
+    "title": "Daily Backups",
+    "rule": "System data must be backed up every 24 hours.",
+    "description": "Ensures data recovery in case of system failure or data loss."
+  }
