@@ -4,6 +4,7 @@ import { z } from "zod";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import { Project } from "./lib/types.js";
 
 // Create server instance
 const server = new McpServer({
@@ -11,14 +12,33 @@ const server = new McpServer({
   version: "1.0.0",
 });
 
-server.tool("add-numbers", 
+server.registerTool(
+  "create_project", 
   {
-    a: z.number().describe("First Number"),
-    b: z.number().describe("second Number"),
+    title: "Create a new project",
+    description: "Create a new project",
+    inputSchema: z.object({
+      name: z.string().describe("The name of the project"),
+      description: z.string().optional().describe("The description of the project"),
+    })
   }, 
-  ({a,b}) => {
+  async ({name, description}) => {
+    const projectId = crypto.randomUUID();
+    const project: Project = {
+      id: projectId,
+      name,
+      description: description || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+
     return {
-      content: [{type: "text", text: `Total is ${a+b}`}]
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify(project, null, 2)
+        }
+      ]
     }
   }
 )
