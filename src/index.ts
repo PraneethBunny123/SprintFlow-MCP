@@ -1,7 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { Project } from "./lib/types.js";
+import { db } from "./db/index.js";
+import { projectsTable } from "./db/schema.js";
 
 // Create server instance
 const server = new McpServer({
@@ -20,20 +21,43 @@ server.registerTool(
     })
   }, 
   async ({name, description}) => {
-    const projectId = crypto.randomUUID();
-    const project: Project = {
-      id: projectId,
-      name,
-      description: description || "",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
+    const [project] = await db
+      .insert(projectsTable)
+      .values({
+        id: crypto.randomUUID(),
+        name,
+        description: description || ""
+      })
+      .returning();
 
     return {
       content: [
         {
           type: "text",
           text: JSON.stringify(project, null, 2)
+        }
+      ]
+    }
+  }
+)
+
+server.registerTool(
+  "list_projects",
+  {
+    title: "List all projects",
+    description: "Fetch all existing projects",
+    inputSchema: z.object({})
+  },
+  async () => {
+    const allProjects = await db
+      .select()
+      .from(projectsTable);
+    
+    return {
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify(allProjects, null, 2)
         }
       ]
     }

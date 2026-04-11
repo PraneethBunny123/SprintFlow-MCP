@@ -20,6 +20,8 @@
   "main": "build/index.js",
   "scripts": {
     "build": "tsc",
+    "start": "node build/index.js",
+    "dev": "tsx src/index.ts",
 
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
