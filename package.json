@@ -24,7 +24,15 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:reset": "docker compose down -v && docker compose up -d",
+    "docker:logs": "docker compose logs -f postgres",
+    "docker:psql": "docker exec -it sprintflow-db psql -U postgres -d sprintflow",
+
+    "dev:setup": "npm run docker:up && npm run db:migrate"
   },
   "repository": {
     "type": "git",
