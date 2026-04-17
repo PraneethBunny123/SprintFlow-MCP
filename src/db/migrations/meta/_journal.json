@@ -15,6 +15,13 @@
       "when": 1776213100213,
       "tag": "0001_dark_mysterio",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776390020447,
+      "tag": "0002_nosy_wolf_cub",
+      "breakpoints": true
     }
   ]
 }

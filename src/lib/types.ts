@@ -6,13 +6,13 @@ export type Project = {
   updatedAt: string;
 }
 
-export type Todo = {
+export type Task = {
     id: string;
     projectId: string;
     title: string;
     description: string;
     createdAt: string;
     updatedAt: string;
-    status: "pending" | "in-progress" | "completed";
+    status: "pending" | "in_progress" | "completed";
     priority: "low" | "medium" | "high";
   }

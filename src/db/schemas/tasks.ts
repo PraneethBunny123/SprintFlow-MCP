@@ -12,7 +12,7 @@ export const tasksTable = pgTable("tasks", {
   status: text("status", {enum: taskStatus}),
   priority: text("priority", {enum: taskPriority}).notNull().default("medium"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
 
 export type TasksTable = typeof tasksTable.$inferSelect;
