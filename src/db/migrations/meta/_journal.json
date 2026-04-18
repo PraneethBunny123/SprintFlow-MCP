@@ -22,6 +22,13 @@
       "when": 1776390020447,
       "tag": "0002_nosy_wolf_cub",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1776472654920,
+      "tag": "0003_secret_spiral",
+      "breakpoints": true
     }
   ]
 }
