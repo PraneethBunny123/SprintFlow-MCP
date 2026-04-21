@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { db } from "../db/index.js";
-import { projectsTable, taskPriority, tasksTable, taskStatus } from "../db/schema.js";
+import { projectsTable, sprintsTable, taskPriority, tasksTable, taskStatus } from "../db/schema.js";
 import { asc, eq, sql } from "drizzle-orm";
 
 export function registerTaskTools(server: McpServer) {
@@ -15,10 +15,22 @@ export function registerTaskTools(server: McpServer) {
         title: z.string().describe("The title of the task"),
         description: z.string().optional().describe("The description of the task"),
         status: z.enum(taskStatus).optional().describe("Task status"),
-        priority: z.enum(taskPriority).optional().describe("Task priority")
+        priority: z.enum(taskPriority).optional().describe("Task priority"),
+        sprintId: z.string().optional().describe("Optional sprint id"),
+        estimatedPoints: z.number().int().nonnegative().optional().describe("Story points estimated"),
+        assignee: z.string().optional().describe("Task assignee"),
       })
     },
-    async ({ projectId, title, description, status, priority }) => {
+    async ({ 
+      projectId,
+      title,
+      description,
+      status,
+      priority,
+      sprintId,
+      estimatedPoints,
+      assignee, 
+    }) => {
       const [project] = await db
         .select({ id: projectsTable.id })
         .from(projectsTable)
@@ -31,15 +43,39 @@ export function registerTaskTools(server: McpServer) {
         }
       }
 
+      if(sprintId) {
+        const [sprint] = await db
+          .select({ id: sprintsTable.id, projectId: sprintsTable.projectId })
+          .from(sprintsTable)
+          .where(eq(projectsTable.id, sprintId))
+          .limit(1)
+
+        if(!sprint) {
+          return {
+            content: [{ type: "text", text: `Sprint with id: ${sprintId} not found` }],
+          };
+        }
+
+        if(sprint.projectId !== projectId) {
+          return {
+            content: [{ type: "text", text: "Task projectId and sprint projectId must match" }]
+          }
+        }
+      }
+      
+
       const [task] = await db
         .insert(tasksTable)
         .values({
           id: crypto.randomUUID(),
           projectId,
+          sprintId: sprintId ?? null,
           title,
           description: description ?? "",
           status: status ?? "pending",
-          priority: priority ?? "medium"
+          priority: priority ?? "medium",
+          estimatedPoints: estimatedPoints ?? null,
+          assignee: assignee ?? null,
         })
         .returning();
 
