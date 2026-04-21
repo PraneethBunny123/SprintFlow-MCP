@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import z from "zod";
 import { projectsTable, sprintsTable, sprintStatus } from "../db/schema.js";
 import { db } from "../db/index.js";
-import { eq } from "drizzle-orm";
+import { eq, asc } from "drizzle-orm";
 
 export function registerSprintTools(server: McpServer) {
   server.registerTool(
@@ -50,4 +50,69 @@ export function registerSprintTools(server: McpServer) {
       }
     }
   )
+
+  server.registerTool(
+    "list_sprints",
+    {
+      title: "List sprints",
+      description: "List all sprints for a project",
+      inputSchema: z.object({
+        projectId: z.string().describe("Project id"),
+      }),
+    },
+    async ({ projectId }) => {
+      const sprints = await db
+        .select()
+        .from(sprintsTable)
+        .where(eq(sprintsTable.projectId, projectId))
+        .orderBy(asc(sprintsTable.startDate));
+      return {
+        content: [{ type: "text", text: JSON.stringify(sprints, null, 2) }],
+      };
+    }
+  );
+
+  server.registerTool(
+    "update_sprint",
+    {
+      title: "Update a sprint",
+      description: "Update sprint metadata or status",
+      inputSchema: z.object({
+        sprintId: z.string(),
+        name: z.string().optional(),
+        goal: z.string().optional(),
+        startDate: z.string().datetime().optional(),
+        endDate: z.string().datetime().optional(),
+        status: z.enum(sprintStatus).optional(),
+      }),
+    },
+    async ({ sprintId, name, goal, startDate, endDate, status }) => {
+      const patch: Partial<{
+        name: string;
+        goal: string;
+        startDate: Date;
+        endDate: Date;
+        status: (typeof sprintStatus)[number];
+        updatedAt: Date;
+      }> = { updatedAt: new Date() };
+      if (name !== undefined) patch.name = name;
+      if (goal !== undefined) patch.goal = goal;
+      if (startDate !== undefined) patch.startDate = new Date(startDate);
+      if (endDate !== undefined) patch.endDate = new Date(endDate);
+      if (status !== undefined) patch.status = status;
+      const [sprint] = await db
+        .update(sprintsTable)
+        .set(patch)
+        .where(eq(sprintsTable.id, sprintId))
+        .returning();
+      if (!sprint) {
+        return {
+          content: [{ type: "text", text: `Sprint with id: ${sprintId} not found` }],
+        };
+      }
+      return {
+        content: [{ type: "text", text: JSON.stringify(sprint, null, 2) }],
+      };
+    }
+  );
 }
