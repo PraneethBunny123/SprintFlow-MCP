@@ -47,7 +47,7 @@ export function registerTaskTools(server: McpServer) {
         const [sprint] = await db
           .select({ id: sprintsTable.id, projectId: sprintsTable.projectId })
           .from(sprintsTable)
-          .where(eq(projectsTable.id, sprintId))
+          .where(eq(sprintsTable.id, sprintId))
           .limit(1)
 
         if(!sprint) {

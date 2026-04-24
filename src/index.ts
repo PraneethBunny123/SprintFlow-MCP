@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerProjectTools } from "./tools/projects.js";
 import { registerTaskTools } from "./tools/tasks.js";
+import { registerSprintTools } from "./tools/sprints.js";
 
 // Create server instance
 const server = new McpServer({
@@ -11,6 +12,7 @@ const server = new McpServer({
 
 registerProjectTools(server);
 registerTaskTools(server);
+registerSprintTools(server);
 
 async function main() {
   const transport = new StdioServerTransport();

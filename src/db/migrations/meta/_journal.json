@@ -29,6 +29,13 @@
       "when": 1776472654920,
       "tag": "0003_secret_spiral",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777068443759,
+      "tag": "0004_curly_black_tom",
+      "breakpoints": true
     }
   ]
 }
