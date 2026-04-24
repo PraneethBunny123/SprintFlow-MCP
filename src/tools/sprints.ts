@@ -1,5 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import z from "zod";
+import { z } from "zod";
 import { projectsTable, sprintsTable, sprintStatus } from "../db/schema.js";
 import { db } from "../db/index.js";
 import { eq, asc } from "drizzle-orm";
