@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { db } from "../db/index.js";
 import { projectsTable, sprintsTable, taskPriority, tasksTable, taskStatus } from "../db/schema.js";
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, sql } from "drizzle-orm";
 
 export function registerTaskTools(server: McpServer) {
   server.registerTool(
@@ -95,12 +95,13 @@ export function registerTaskTools(server: McpServer) {
       })
     },
     async ({ projectId }) => {
-      const statusOrder = sql`CASE ${tasksTable.status}
+      const statusOrder = sql`
+        CASE ${tasksTable.status}
         WHEN 'pending' THEN 0
         WHEN 'in_progress' THEN 1
         WHEN 'completed' THEN 2
         ELSE 3
-      END`;
+        END`;
 
       const tasks = await db
         .select()
@@ -110,6 +111,118 @@ export function registerTaskTools(server: McpServer) {
       
       return {
         content: [{ type: "text", text: JSON.stringify(tasks, null, 2) }]
+      }
+    }
+  )
+
+  server.registerTool(
+    "list_backlog_tasks",
+    {
+      title: "List backlog tasks",
+      description: "List project tasks that are not assigned to a sprint",
+      inputSchema: z.object({
+        projectId: z.string().describe("Project id")
+      })
+    },
+    async ({ projectId }) => {
+      const statusOrder = sql`
+        CASE ${tasksTable.status}
+        WHEN 'pending' THEN 0
+        WHEN 'in_progress' THEN 1
+        WHEN 'completed' THEN 2
+        ELSE 3
+        END`;
+
+      const tasks = await db
+        .select()
+        .from(tasksTable)
+        .where(and(eq(tasksTable.projectId, projectId), isNull(tasksTable.sprintId)))
+        .orderBy(statusOrder, asc(tasksTable.createdAt));
+
+      return {
+        content: [{ type: "text", text: JSON.stringify(tasks, null, 2) }]
+      }
+    }
+  )
+
+  server.registerTool(
+    "list_sprint_tasks",
+    {
+      title: "List sprint tasks",
+      description: "List tasks assigned to a sprint",
+      inputSchema: z.object({
+        sprintId: z.string().describe("Sprint id"),
+      }),
+    },
+    async ({ sprintId }) => {
+      const statusOrder = sql`CASE ${tasksTable.status}
+        WHEN 'pending' THEN 0
+        WHEN 'in_progress' THEN 1
+        WHEN 'completed' THEN 2
+        ELSE 3
+      END`;
+      const tasks = await db
+        .select()
+        .from(tasksTable)
+        .where(eq(tasksTable.sprintId, sprintId))
+        .orderBy(statusOrder, asc(tasksTable.createdAt));
+      return {
+        content: [{ type: "text", text: JSON.stringify(tasks, null, 2) }],
+      };
+    }
+  );
+
+  server.registerTool(
+    "move_task_to_sprint",
+    {
+      title: "Move task to sprint",
+      description: "Assign a task to a sprint",
+      inputSchema: z.object({
+        taskId: z.string().describe("Task id"),
+        sprintId: z.string().describe("sprint id")
+      })
+    },
+    async ({ taskId, sprintId }) => {
+      const [task] = await db
+        .select({ id: tasksTable.id, projectId: tasksTable.projectId })
+        .from(tasksTable)
+        .where(eq(tasksTable.id, taskId))
+        .limit(1);
+
+      if (!task) {
+        return {
+          content: [{ type: "text", text: `Task with id: ${taskId} not found` }],
+        };
+      }
+
+      const [sprint] = await db
+        .select({ id: sprintsTable.id, projectId: sprintsTable.projectId })
+        .from(sprintsTable)
+        .where(eq(sprintsTable.id, sprintId))
+        .limit(1);
+
+      if (!sprint) {
+        return {
+          content: [{ type: "text", text: `Sprint with id: ${sprintId} not found` }],
+        };
+      }
+
+      if (task.projectId !== sprint.projectId) {
+        return {
+          content: [
+            { type: "text", text: "Task and sprint must belong to the same project" },
+          ],
+        };
+      }
+
+      const [updated] = await db
+        .update(tasksTable)
+        .set({ sprintId, updatedAt: new Date() })
+        .where(eq(tasksTable.id, taskId))
+        .returning();
+
+      return {
+        content: [{ type: "text", text: JSON.stringify(updated, null, 2) }]
       }
     }
   )
