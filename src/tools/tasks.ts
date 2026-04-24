@@ -228,6 +228,34 @@ export function registerTaskTools(server: McpServer) {
   )
 
   server.registerTool(
+    "move_task_to_backlog",
+    {
+      title: "move task to backlog",
+      description: "Remove a task from sprint assignment",
+      inputSchema: z.object({
+        taskId: z.string().describe("Task Id")
+      })
+    },
+    async ({ taskId }) => {
+      const [updated] = await db  
+        .update(tasksTable)
+        .set({ sprintId: null, updatedAt: new Date() })
+        .where(eq(tasksTable.id, taskId))
+        .returning()
+
+      if(!updated) {
+        return {
+          content: [{ type: "text", text: `Task with id: ${taskId} not found` }]
+        }
+      }
+
+      return {
+        content: [{ type: "text", text: JSON.stringify(updated, null, 2) }]
+      }
+    }
+  )
+
+  server.registerTool(
     "update_task",
     {
       title: "Update a task",
@@ -238,14 +266,61 @@ export function registerTaskTools(server: McpServer) {
         description: z.string().optional().describe("New description"),
         status: z.enum(taskStatus).optional().describe("New status"),
         priority: z.enum(taskPriority).optional().describe("New priority"),
+        sprintId: z.string().optional().describe("New sprint id"),
+        estimatedPoints: z.number().int().nonnegative().optional().describe("New estimate"),
+        assignee: z.string().optional().describe("New assignee"),
       })
     },
-    async ({ taskId, title, description, status, priority }) => {
+    async ({ 
+      taskId,
+      title,
+      description,
+      status,
+      priority,
+      sprintId,
+      estimatedPoints,
+      assignee,
+     }) => {
+      const [currentTask] = await db
+        .select({ id: tasksTable.id, projectId: tasksTable.projectId })
+        .from(tasksTable)
+        .where(eq(tasksTable.id, taskId))
+        .limit(1)
+
+      if(!currentTask) {
+        return {
+          content: [{ type: "text", text: `Task with id: ${taskId} not found` }]
+        }
+      }
+
+      if(sprintId !== undefined) {
+        const [sprint] = await db
+          .select({ id: sprintsTable.id, projectId: sprintsTable.projectId })
+          .from(sprintsTable)
+          .where(eq(sprintsTable.id, sprintId))
+          .limit(1)
+
+        if(!sprint) {
+          return {
+            content: [{ type: "text", text: `Sprint with id: ${sprintId} not found` }]
+          }
+        }
+
+        if(sprint.projectId !== currentTask.projectId) {
+          return {
+            content: [{ type: "text", text: "Task and sprint must belong to the same project" }]
+          }
+        }
+      }
+
       const patch: Partial<{
         title: string;
         description: string;
         status: (typeof taskStatus)[number];
         priority: (typeof taskPriority)[number];
+        sprintId: string | null;
+        estimatedPoints: number | null;
+        assignee: string | null;
         updatedAt: Date;
       }> = { updatedAt: new Date() };
 
@@ -253,20 +328,15 @@ export function registerTaskTools(server: McpServer) {
       if (description !== undefined) patch.description = description;
       if (status !== undefined) patch.status = status;
       if (priority !== undefined) patch.priority = priority;
+      if (sprintId !== undefined) patch.sprintId = sprintId;
+      if (estimatedPoints !== undefined) patch.estimatedPoints = estimatedPoints;
+      if (assignee !== undefined) patch.assignee = assignee;
 
       const [task] = await db
         .update(tasksTable)
         .set(patch)
         .where(eq(tasksTable.id, taskId))
         .returning()
-      
-      if (!task) {
-        return {
-          content: [
-            { type: "text", text: `Task with id: ${taskId} not found` },
-          ],
-        };
-      }
 
       return {
         content: [{ type: "text", text: JSON.stringify(task, null, 2) }]
