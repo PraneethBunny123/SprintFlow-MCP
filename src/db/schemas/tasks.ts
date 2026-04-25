@@ -15,7 +15,7 @@ export const tasksTable = pgTable("tasks", {
   priority: text("priority", {enum: taskPriority}).notNull().default("medium"),
   estimatedPoints: integer("estimated_points"),
   assignee: text("assignee"),
-  sortOrder: integer("sort order"),
+  sortOrder: integer("sort_order"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })

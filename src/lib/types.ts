@@ -11,7 +11,7 @@ export type Project = {
 export type Task = {
   id: string;
   projectId: string;
-  sprintId: string;
+  sprintId: string | null;
   title: string;
   description: string;
   status: typeof taskStatus;

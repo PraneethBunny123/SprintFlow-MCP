@@ -247,9 +247,17 @@ export function registerTaskTools(server: McpServer) {
         };
       }
 
+      const laneRows = await db
+        .select({ sortOrder: tasksTable.sortOrder })
+        .from(tasksTable)
+        .where(eq(tasksTable.sprintId, sprintId));
+
+      const maxOrder = laneRows.reduce((acc, r) => Math.max(acc, r.sortOrder ?? -1),-1);
+      const nextSortOrder = maxOrder + 1;
+
       const [updated] = await db
         .update(tasksTable)
-        .set({ sprintId, updatedAt: new Date() })
+        .set({ sprintId, sortOrder: nextSortOrder, updatedAt: new Date() })
         .where(eq(tasksTable.id, taskId))
         .returning();
 
@@ -269,9 +277,31 @@ export function registerTaskTools(server: McpServer) {
       })
     },
     async ({ taskId }) => {
+
+      const [task] = await db
+        .select({ id: tasksTable.id, projectId: tasksTable.projectId })
+        .from(tasksTable)
+        .where(eq(tasksTable.id, taskId))
+        .limit(1);
+
+      if (!task) {
+        return {
+          content: [{ type: "text", text: `Task with id: ${taskId} not found` }],
+        };
+      }
+
+      // Backlog lane = same project + sprintId is null
+      const laneRows = await db
+        .select({ sortOrder: tasksTable.sortOrder })
+        .from(tasksTable)
+        .where(and(eq(tasksTable.projectId, task.projectId), isNull(tasksTable.sprintId)));
+
+      const maxOrder = laneRows.reduce((acc, r) => Math.max(acc, r.sortOrder ?? -1),-1);
+      const nextSortOrder = maxOrder + 1;
+
       const [updated] = await db  
         .update(tasksTable)
-        .set({ sprintId: null, updatedAt: new Date() })
+        .set({ sprintId: null, sortOrder: nextSortOrder, updatedAt: new Date() })
         .where(eq(tasksTable.id, taskId))
         .returning()
 

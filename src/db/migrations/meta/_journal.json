@@ -36,6 +36,13 @@
       "when": 1777068443759,
       "tag": "0004_curly_black_tom",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1777150472817,
+      "tag": "0005_fearless_groot",
+      "breakpoints": true
     }
   ]
 }
