@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { db } from "../db/index.js";
 import { projectsTable, sprintsTable, taskPriority, tasksTable, taskStatus } from "../db/schema.js";
-import { and, asc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, isNull, sql, inArray } from "drizzle-orm";
 
 export function registerTaskTools(server: McpServer) {
   server.registerTool(
@@ -63,6 +63,25 @@ export function registerTaskTools(server: McpServer) {
         }
       }
       
+      let nextSortOrder = 0;
+
+      if(sprintId) {
+        const rows = await db
+          .select({ sortOrder: tasksTable.sortOrder })
+          .from(tasksTable)
+          .where(eq(tasksTable.sprintId, sprintId))
+
+        const maxOrder = rows.reduce((acc, r) => Math.max(acc, r.sortOrder ?? -1), -1)
+        nextSortOrder = maxOrder + 1;
+      } else {
+        const rows = await db 
+          .select({ sortOrder: tasksTable.sortOrder })
+          .from(tasksTable)
+          .where(and(eq(tasksTable.projectId, projectId), isNull(tasksTable.sprintId)))
+
+        const maxOrder = rows.reduce((acc, r) => Math.max(acc, r.sortOrder ?? -1), -1)
+        nextSortOrder = maxOrder + 1;
+      }
 
       const [task] = await db
         .insert(tasksTable)
@@ -76,6 +95,7 @@ export function registerTaskTools(server: McpServer) {
           priority: priority ?? "medium",
           estimatedPoints: estimatedPoints ?? null,
           assignee: assignee ?? null,
+          sortOrder: nextSortOrder,
         })
         .returning();
 
