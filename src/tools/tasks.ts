@@ -127,7 +127,11 @@ export function registerTaskTools(server: McpServer) {
         .select()
         .from(tasksTable)
         .where(eq(tasksTable.projectId, projectId))
-        .orderBy(statusOrder, asc(tasksTable.createdAt))
+        .orderBy(
+          asc(tasksTable.sortOrder),
+          statusOrder, 
+          asc(tasksTable.createdAt)
+        )
       
       return {
         content: [{ type: "text", text: JSON.stringify(tasks, null, 2) }]
@@ -157,7 +161,11 @@ export function registerTaskTools(server: McpServer) {
         .select()
         .from(tasksTable)
         .where(and(eq(tasksTable.projectId, projectId), isNull(tasksTable.sprintId)))
-        .orderBy(statusOrder, asc(tasksTable.createdAt));
+        .orderBy(
+          asc(tasksTable.sortOrder),
+          statusOrder, 
+          asc(tasksTable.createdAt)
+        );
 
       return {
         content: [{ type: "text", text: JSON.stringify(tasks, null, 2) }]
@@ -185,7 +193,11 @@ export function registerTaskTools(server: McpServer) {
         .select()
         .from(tasksTable)
         .where(eq(tasksTable.sprintId, sprintId))
-        .orderBy(statusOrder, asc(tasksTable.createdAt));
+        .orderBy(
+          asc(tasksTable.sortOrder),
+          statusOrder, 
+          asc(tasksTable.createdAt)
+        );
       return {
         content: [{ type: "text", text: JSON.stringify(tasks, null, 2) }],
       };
