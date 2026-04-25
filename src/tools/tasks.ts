@@ -288,6 +288,78 @@ export function registerTaskTools(server: McpServer) {
   )
 
   server.registerTool(
+    "reorder_tasks",
+    {
+      title: "Reorder tasks",
+      description: "Rewrite sort order for tasks in one lane (either backlog of project or one sprint)",
+      inputSchema: z.object({
+        projectId: z.string().describe("Project id for validation"),
+        sprintId: z.string().optional().describe("If provided reorder inside this sprint lane"),
+        taskIds: z.array(z.string()).min(1).describe("Task ids in desired top-to-bottom order") 
+      })
+    },
+    async ({ projectId, sprintId, taskIds }) => {
+      // Fetch and validate tasks exist
+      const tasks = await db
+        .select({ id: tasksTable.id, projectId: tasksTable.projectId, sprintId: tasksTable.sprintId })
+        .from(tasksTable)
+        .where(inArray(tasksTable.id, taskIds))
+      
+      if(tasks.length !== taskIds.length) {
+        return {
+          content: [{ type: "text", text: "One or more taskIds were not found" }]
+        }
+      }
+
+      // Validate lane + project consistency
+      for(const t of tasks) {
+        if(t.projectId !== projectId) {
+          return {
+            content: [{ type: "text", text: "All tasks must belong to the provided projectId" }]
+          }
+        }
+
+        if(sprintId) {
+          if(t.sprintId !== sprintId) {
+            return {
+              content: [{ type: "text", text: "All tasks must belong to the provided sprintId lane" }]
+            }
+          }
+        } else {
+          if(t.sprintId !== null) {
+            return {
+              content: [{ type: "text", text: "When sprintId is omitted, all tasks must be backlog tasks" }],
+            };
+          }
+        }
+      }
+
+      // Apply order according to taskIds sequence
+      for(let i=0; i<taskIds.length; i++) {
+        await db
+          .update(tasksTable)
+          .set({ sortOrder: i , updatedAt: new Date()})
+          .where(eq(tasksTable.id, taskIds[i]))
+      }
+
+      // Return ordered lane for confirmation
+      const ordered = await db
+        .select()
+        .from(tasksTable)
+        .where(
+          sprintId 
+            ? and(eq(tasksTable.projectId, projectId), eq(tasksTable.sprintId, sprintId))
+            : and(eq(tasksTable.projectId, projectId), isNull(tasksTable.sprintId))
+        )
+        .orderBy(asc(tasksTable.sortOrder), asc(tasksTable.createdAt))
+
+      return {
+        content: [{ type: "text", text: JSON.stringify(ordered, null, 2) }]
+      }
+    }
+  )
+
+  server.registerTool(
     "update_task",
     {
       title: "Update a task",
