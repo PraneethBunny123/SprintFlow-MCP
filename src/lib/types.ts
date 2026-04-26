@@ -16,8 +16,8 @@ export type Task = {
   description: string;
   status: typeof taskStatus;
   priority: typeof taskPriority;
-  estimatedPoints: number;
-  assignee: string;
+  estimatedPoints: number | null;
+  assignee: string | null;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
@@ -34,3 +34,10 @@ export type Sprint = {
   createdAt: string;
   updatedAt: string;
 }
+
+export type TaskDependency = {
+  id: string;
+  blockedTaskId: string;
+  blockerTaskId: string;
+  createdAt: string;
+};

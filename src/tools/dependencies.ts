@@ -85,7 +85,7 @@ export function registerDependencyTools(server: McpServer) {
         .where(
           and(
             eq(taskDependenciesTable.blockedTaskId, blockedTaskId),
-            eq(taskDependenciesTable.blockedTaskId, blockerTaskId),
+            eq(taskDependenciesTable.blockerTaskId, blockerTaskId),
           )
         )
         .returning()
@@ -124,7 +124,7 @@ export function registerDependencyTools(server: McpServer) {
   )
 
   server.registerTool(
-    "list_blocked_dependencies",
+    "list_blocked_tasks",
     {
       title: "List blocked tasks",
       description: "List tasks that currently have at least one dependency, optionally by sprint/backlog lane",

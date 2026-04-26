@@ -43,6 +43,13 @@
       "when": 1777150472817,
       "tag": "0005_fearless_groot",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777221147082,
+      "tag": "0006_material_shen",
+      "breakpoints": true
     }
   ]
 }
