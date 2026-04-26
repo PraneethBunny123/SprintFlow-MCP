@@ -105,7 +105,7 @@ export function registerDependencyTools(server: McpServer) {
   server.registerTool(
     "list_task_dependencies",
     {
-      title: "List task dependency",
+      title: "List task dependencies",
       description: "List all blockers for one task",
       inputSchema: z.object({
         taskId: z.string(),
@@ -123,5 +123,47 @@ export function registerDependencyTools(server: McpServer) {
     }
   )
 
-  
+  server.registerTool(
+    "list_blocked_dependencies",
+    {
+      title: "List blocked tasks",
+      description: "List tasks that currently have at least one dependency, optionally by sprint/backlog lane",
+      inputSchema: z.object({
+        projectId: z.string(),
+        sprintId: z.string().optional()
+      })
+    },
+    async ({ projectId, sprintId }) => {
+      const allProjectTasks = await db
+        .select({ id: tasksTable.id, sprintId: tasksTable.sprintId })
+        .from(tasksTable)
+        .where(eq(tasksTable.projectId, projectId))
+
+      const laneTaskIds = allProjectTasks
+        .filter((t) => (sprintId ? t.sprintId === sprintId : t.sprintId === null))
+        .map((t) => t.id)
+
+      if(laneTaskIds.length === 0) {
+        return {
+          content: [{ type: "text", text: "[]" }]
+        }
+      }
+
+      const blockedEdges = await db
+        .select()
+        .from(taskDependenciesTable)
+        .where(inArray(taskDependenciesTable.blockedTaskId, laneTaskIds))
+
+      const blockedSet = new Set(blockedEdges.map((e) => e.blockedTaskId))
+
+      const blockedTasks = await db
+        .select()
+        .from(tasksTable)
+        .where(inArray(tasksTable.id, [...blockedSet]))
+
+      return {
+        content: [{ type: "text", text: JSON.stringify(blockedTasks, null, 2) }]
+      }
+    }
+  )
 }
