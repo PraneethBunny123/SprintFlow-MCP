@@ -101,4 +101,27 @@ export function registerDependencyTools(server: McpServer) {
       }
     }
   )
+
+  server.registerTool(
+    "list_task_dependencies",
+    {
+      title: "List task dependency",
+      description: "List all blockers for one task",
+      inputSchema: z.object({
+        taskId: z.string(),
+      })
+    },
+    async ({ taskId }) => {
+      const blockers = await db
+        .select()
+        .from(taskDependenciesTable)
+        .where(eq(taskDependenciesTable.blockedTaskId, taskId))
+
+      return {
+        content: [{ type: "text", text: JSON.stringify(blockers, null, 2) }]
+      }
+    }
+  )
+
+  
 }
