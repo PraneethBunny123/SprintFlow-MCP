@@ -14,11 +14,11 @@ export type Task = {
   sprintId: string | null;
   title: string;
   description: string;
-  status: typeof taskStatus;
-  priority: typeof taskPriority;
+  status: (typeof taskStatus)[number];
+  priority: (typeof taskPriority)[number];
   estimatedPoints: number | null;
   assignee: string | null;
-  sortOrder: number;
+  sortOrder: number | null;
   createdAt: string;
   updatedAt: string;
 }

@@ -97,7 +97,7 @@ export function registerDependencyTools(server: McpServer) {
       }
 
       return {
-        content: [{ type: "text", text: "Dependency rmeoved" }]
+        content: [{ type: "text", text: "Dependency removed" }]
       }
     }
   )
