@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { db } from "../db/index.js";
-import { projectsTable } from "../db/schema.js";
+import { db } from "@sprintflow/domain/src/db/index.js";
+import { projectsTable } from "@sprintflow/domain/src/db/schema.js";
 
 export function registerProjectTools(server: McpServer) {
   server.registerTool(

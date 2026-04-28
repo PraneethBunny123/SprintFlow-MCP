@@ -1,4 +1,4 @@
-import { sprintStatus, taskPriority, taskStatus } from "../db/schema.js";
+import { sprintStatus, taskPriority, taskStatus } from "@sprintflow/domain/src/db/schema.js";
 
 export type Project = {
   id: string;

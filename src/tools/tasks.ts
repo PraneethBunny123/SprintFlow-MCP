@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { db } from "../db/index.js";
-import { projectsTable, sprintsTable, taskPriority, tasksTable, taskStatus } from "../db/schema.js";
+import { db } from "@sprintflow/domain/src/db/index.js";
+import { projectsTable, sprintsTable, taskPriority, tasksTable, taskStatus } from "@sprintflow/domain/src/db/schema.js";
 import { and, asc, eq, isNull, sql, inArray } from "drizzle-orm";
 
 export function registerTaskTools(server: McpServer) {

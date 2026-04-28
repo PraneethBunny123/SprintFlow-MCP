@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { projectsTable, sprintsTable, sprintStatus } from "../db/schema.js";
-import { db } from "../db/index.js";
+import { projectsTable, sprintsTable, sprintStatus } from "@sprintflow/domain/src/db/schema.js";
+import { db } from "@sprintflow/domain/src/db/index.js";
 import { eq, asc } from "drizzle-orm";
 
 export function registerSprintTools(server: McpServer) {
