@@ -1,7 +1,13 @@
 import { db } from "../db/index.js"
-import { projectsTable } from "../db/schemas/projects.js";
+import { 
+  projectsTable, 
+  ProjectsTable as ProjectsTableSelect 
+} from "../db/schema.js";
 
-export async function createProject(name: string, description: string | undefined) {
+export async function createProject(
+  name: string, 
+  description: string | undefined
+) : Promise<ProjectsTableSelect> {
   const [project] = await db
     .insert(projectsTable)
     .values({
@@ -14,7 +20,7 @@ export async function createProject(name: string, description: string | undefine
   return project;
 }
 
-export async function listProjects() {
+export async function listProjects() : Promise<ProjectsTableSelect[]> {
   const allProjects = await db
     .select()
     .from(projectsTable);
