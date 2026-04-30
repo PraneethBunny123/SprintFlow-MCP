@@ -5,6 +5,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@sprintflow/domain": "*",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "dotenv": "^17.4.1",
     "drizzle-orm": "^0.45.2",
@@ -39,7 +40,9 @@
     "docker:logs": "docker compose logs -f postgres",
     "docker:psql": "docker exec -it sprintflow-db psql -U postgres -d sprintflow",
 
-    "dev:setup": "npm run docker:up && npm run db:migrate"
+    "dev:setup": "npm run docker:up && npm run db:migrate",
+
+    "build:domain": "npm run build -w @sprintflow/domain"
   },
   "repository": {
     "type": "git",

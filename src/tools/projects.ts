@@ -1,7 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { db } from "@sprintflow/domain/src/db/index.js";
-import { projectsTable } from "@sprintflow/domain/src/db/schema.js";
+import { createProject, listProjects } from "@sprintflow/domain";
 
 export function registerProjectTools(server: McpServer) {
   server.registerTool(
@@ -15,14 +14,7 @@ export function registerProjectTools(server: McpServer) {
       })
     }, 
     async ({name, description}) => {
-      const [project] = await db
-        .insert(projectsTable)
-        .values({
-          id: crypto.randomUUID(),
-          name,
-          description: description || ""
-        })
-        .returning();
+      const project = await createProject(name, description)
   
       return {
         content: [
@@ -43,9 +35,7 @@ export function registerProjectTools(server: McpServer) {
       inputSchema: z.object({})
     },
     async () => {
-      const allProjects = await db
-        .select()
-        .from(projectsTable);
+      const allProjects = await listProjects()
       
       return {
         content: [

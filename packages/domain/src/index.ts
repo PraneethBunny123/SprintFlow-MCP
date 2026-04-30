@@ -1,1 +1,1 @@
-export const domainVersion = "0.0.1"
+export * from "./services/projectService.js"
