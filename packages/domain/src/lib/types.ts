@@ -1,4 +1,4 @@
-import { sprintStatus, taskPriority, taskStatus } from "@sprintflow/domain/src/db/schema.js";
+import { sprintStatus, taskPriority, taskStatus } from "../db/schema.js";
 
 export type Project = {
   id: string;
@@ -11,14 +11,14 @@ export type Project = {
 export type Task = {
   id: string;
   projectId: string;
-  sprintId: string | null;
   title: string;
   description: string;
-  status: (typeof taskStatus)[number];
-  priority: (typeof taskPriority)[number];
-  estimatedPoints: number | null;
-  assignee: string | null;
-  sortOrder: number | null;
+  status: (typeof taskStatus)[number] | undefined;
+  priority: (typeof taskPriority)[number] |undefined;
+  sprintId: string | undefined;
+  estimatedPoints: number | undefined;
+  assignee: string | undefined;
+  sortOrder: number | undefined;
   createdAt: string;
   updatedAt: string;
 }

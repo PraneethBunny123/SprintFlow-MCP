@@ -1,3 +1,5 @@
 export * from "./services/projectService.js";
 export * from "./services/taskService.js";
-export { taskPriority, taskStatus } from "./db/schema.js";
+export * from "./services/sprintService.js";
+export * from "./services/dependencyService.js";
+export { taskPriority, taskStatus, sprintStatus } from "./db/schema.js";

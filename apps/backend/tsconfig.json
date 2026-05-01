@@ -3,12 +3,13 @@
     "target": "ES2022",
     "module": "Node16",
     "moduleResolution": "Node16",
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "outDir": "./dist", // WHERE compiled .js files go
+    "rootDir": "./src", // WHERE .ts source files are
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "declaration": true, // generates .d.ts files alongside .js
     "types": ["node"]
   },
   "include": ["src/**/*"],

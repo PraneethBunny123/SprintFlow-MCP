@@ -1,8 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { projectsTable, sprintsTable, sprintStatus } from "@sprintflow/domain/src/db/schema.js";
-import { db } from "@sprintflow/domain/src/db/index.js";
-import { eq, asc } from "drizzle-orm";
+import { createSprint, listSprints, updateSprint, sprintStatus } from "@sprintflow/domain"
 
 export function registerSprintTools(server: McpServer) {
   server.registerTool(
@@ -20,33 +18,21 @@ export function registerSprintTools(server: McpServer) {
       })
     },
     async ({ projectId, name, goal, startDate, endDate, status }) => {
-      const [project] = await db
-        .select({ id: projectsTable.id })
-        .from(projectsTable)
-        .where(eq(projectsTable.id, projectId))
-        .limit(1)
-      
-      if(!project) {
-        return {
-          content: [{ type: "text", text: `project with id: ${projectId} not found` }]
-        }
+      const result = await createSprint({
+        projectId,
+        name,
+        goal,
+        startDate,
+        endDate,
+        status
+      }) 
+
+      if(!result.ok) {
+        return { content: [{ type: "text", text: result.message }] };
       }
 
-      const [sprint] = await db
-        .insert(sprintsTable)
-        .values({
-          id: crypto.randomUUID(),
-          projectId,
-          name,
-          goal: goal ?? "",
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-          status: status ?? "planned"
-        })
-        .returning()
-
       return {
-        content: [{ type: "text", text: JSON.stringify(sprint, null,2) }]
+        content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }]
       }
     }
   )
@@ -61,11 +47,8 @@ export function registerSprintTools(server: McpServer) {
       }),
     },
     async ({ projectId }) => {
-      const sprints = await db
-        .select()
-        .from(sprintsTable)
-        .where(eq(sprintsTable.projectId, projectId))
-        .orderBy(asc(sprintsTable.startDate));
+      const sprints = await listSprints(projectId)
+
       return {
         content: [{ type: "text", text: JSON.stringify(sprints, null, 2) }],
       };
@@ -87,31 +70,22 @@ export function registerSprintTools(server: McpServer) {
       }),
     },
     async ({ sprintId, name, goal, startDate, endDate, status }) => {
-      const patch: Partial<{
-        name: string;
-        goal: string;
-        startDate: Date;
-        endDate: Date;
-        status: (typeof sprintStatus)[number];
-        updatedAt: Date;
-      }> = { updatedAt: new Date() };
-      if (name !== undefined) patch.name = name;
-      if (goal !== undefined) patch.goal = goal;
-      if (startDate !== undefined) patch.startDate = new Date(startDate);
-      if (endDate !== undefined) patch.endDate = new Date(endDate);
-      if (status !== undefined) patch.status = status;
-      const [sprint] = await db
-        .update(sprintsTable)
-        .set(patch)
-        .where(eq(sprintsTable.id, sprintId))
-        .returning();
-      if (!sprint) {
+      const result = await updateSprint({
+        sprintId,
+        name,
+        goal,
+        startDate,
+        endDate,
+        status
+      })
+
+      if (!result.ok) {
         return {
-          content: [{ type: "text", text: `Sprint with id: ${sprintId} not found` }],
+          content: [{ type: "text", text: result.message }],
         };
       }
       return {
-        content: [{ type: "text", text: JSON.stringify(sprint, null, 2) }],
+        content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }],
       };
     }
   );
