@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@sprintflow/domain/src/db/index.js";
 import { taskDependenciesTable, tasksTable } from "@sprintflow/domain/src/db/schema.js";
 import { and, eq, isNull, inArray } from "drizzle-orm";
+import { addTaskDependency, listBlockedTasks, listTaskDependency, removeTaskDependency } from "@sprintflow/domain";
 
 export function registerDependencyTools(server: McpServer) {
   server.registerTool(
@@ -16,55 +17,16 @@ export function registerDependencyTools(server: McpServer) {
       })
     },
     async ({ blockedTaskId, blockerTaskId }) => {
-      if(blockedTaskId === blockerTaskId) {
+      const result = await addTaskDependency(blockedTaskId, blockerTaskId)
+
+      if(!result.ok) {
         return {
-          content: [{ type: "text", text: "Task cannot depend on itself" }]
-        }
-      }
-
-      const tasks = await db
-        .select({ id: tasksTable.id, projectId: tasksTable.projectId })
-        .from(tasksTable)
-        .where(inArray(tasksTable.id, [blockedTaskId, blockerTaskId]))
-
-      if (tasks.length !== 2) {
-        return { content: [{ type: "text", text: "One or both task ids not found" }] };
-      }
-
-      const blocked = tasks.find((t) => t.id === blockedTaskId)
-      const blocker = tasks.find((t) => t.id === blockerTaskId)
-
-      if(blocked?.projectId !== blocker?.projectId) {
-        return {
-          content: [{ type: "text", text: "Dependencies must be inside same project" }],
-        };
-      } 
-
-      const reverse = await db
-        .select({ id: taskDependenciesTable.id })
-        .from(taskDependenciesTable)
-        .where(and(
-          eq(taskDependenciesTable.blockedTaskId, blockerTaskId),
-          eq(taskDependenciesTable.blockerTaskId, blockedTaskId),
-        ))
-
-      if(reverse.length > 0) {
-        return {
-          content: [{ type: "text", text: "Reverse dependency already exists (cycle)" }],
+          content: [{ type: "text", text: result.message }],
         };
       }
-
-      const [edge] = await db
-        .insert(taskDependenciesTable)
-        .values({
-          id: crypto.randomUUID(),
-          blockedTaskId,
-          blockerTaskId
-        })
-        .returning();
 
       return {
-        content: [{ type: "text", text: JSON.stringify(edge, null, 2) }]
+        content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }]
       }
     }
   )
@@ -80,24 +42,16 @@ export function registerDependencyTools(server: McpServer) {
       })
     },
     async ({ blockedTaskId, blockerTaskId }) => {
-      const [deleted] = await db
-        .delete(taskDependenciesTable)
-        .where(
-          and(
-            eq(taskDependenciesTable.blockedTaskId, blockedTaskId),
-            eq(taskDependenciesTable.blockerTaskId, blockerTaskId),
-          )
-        )
-        .returning()
+      const result = await removeTaskDependency(blockedTaskId, blockerTaskId)
 
-      if(!deleted) {
+      if(!result.ok) {
         return {
-          content: [{ type: "text", text: "Dependency not found" }]
+          content: [{ type: "text", text: result.message }]
         }
       }
 
       return {
-        content: [{ type: "text", text: "Dependency removed" }]
+        content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }]
       }
     }
   )
@@ -112,10 +66,7 @@ export function registerDependencyTools(server: McpServer) {
       })
     },
     async ({ taskId }) => {
-      const blockers = await db
-        .select()
-        .from(taskDependenciesTable)
-        .where(eq(taskDependenciesTable.blockedTaskId, taskId))
+      const blockers = await listTaskDependency(taskId)
 
       return {
         content: [{ type: "text", text: JSON.stringify(blockers, null, 2) }]
@@ -134,35 +85,16 @@ export function registerDependencyTools(server: McpServer) {
       })
     },
     async ({ projectId, sprintId }) => {
-      const allProjectTasks = await db
-        .select({ id: tasksTable.id, sprintId: tasksTable.sprintId })
-        .from(tasksTable)
-        .where(eq(tasksTable.projectId, projectId))
+      const result = await listBlockedTasks(projectId, sprintId)
 
-      const laneTaskIds = allProjectTasks
-        .filter((t) => (sprintId ? t.sprintId === sprintId : t.sprintId === null))
-        .map((t) => t.id)
-
-      if(laneTaskIds.length === 0) {
+      if(!result.ok) {
         return {
-          content: [{ type: "text", text: "[]" }]
+          content: [{ type: "text", text: result.message }]
         }
       }
 
-      const blockedEdges = await db
-        .select()
-        .from(taskDependenciesTable)
-        .where(inArray(taskDependenciesTable.blockedTaskId, laneTaskIds))
-
-      const blockedSet = new Set(blockedEdges.map((e) => e.blockedTaskId))
-
-      const blockedTasks = await db
-        .select()
-        .from(tasksTable)
-        .where(inArray(tasksTable.id, [...blockedSet]))
-
       return {
-        content: [{ type: "text", text: JSON.stringify(blockedTasks, null, 2) }]
+        content: [{ type: "text", text: JSON.stringify(result.data, null, 2) }]
       }
     }
   )

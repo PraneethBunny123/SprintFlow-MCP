@@ -4,7 +4,7 @@ import {
   sprintStatus,  
   SprintsTable as SprintsTableSelect
 } from "../db/schema.js";
-import { db } from "@sprintflow/domain/src/db/index.js";
+import { db } from "../db/index.js";
 import { eq, asc } from "drizzle-orm";
 
 export type SprintServiceResult<T> = 
