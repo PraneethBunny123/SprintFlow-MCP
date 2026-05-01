@@ -4,6 +4,34 @@
     "apps/*",
     "packages/*"
   ],
+  "type": "module",
+  "name": "sprintflow-mcp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run build:domain && tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+
+    "build:domain": "npm run build -w @sprintflow/domain",
+    "build:backend": "npm run build -w @sprintflow/backend",
+    "build:all": "npm run build:domain && npm run build:backend && tsc",
+    "dev:backend": "npm run dev -w @sprintflow/backend",
+
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "drizzle-kit push",
+    
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:reset": "docker compose down -v && docker compose up -d",
+    "docker:logs": "docker compose logs -f postgres",
+    "docker:psql": "docker exec -it sprintflow-db psql -U postgres -d sprintflow",
+
+    "dev:setup": "npm run docker:up && npm run db:migrate"
+  },
   "dependencies": {
     "@sprintflow/domain": "*",
     "@modelcontextprotocol/sdk": "^1.29.0",
@@ -18,31 +46,6 @@
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
-  },
-  "type": "module",
-  "name": "sprintflow-mcp",
-  "version": "1.0.0",
-  "description": "",
-  "main": "build/index.js",
-  "scripts": {
-    "build": "tsc",
-    "start": "node build/index.js",
-    "dev": "tsx src/index.ts",
-
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push",
-    
-    "docker:up": "docker compose up -d",
-    "docker:down": "docker compose down",
-    "docker:reset": "docker compose down -v && docker compose up -d",
-    "docker:logs": "docker compose logs -f postgres",
-    "docker:psql": "docker exec -it sprintflow-db psql -U postgres -d sprintflow",
-
-    "dev:setup": "npm run docker:up && npm run db:migrate",
-
-    "build:domain": "npm run build -w @sprintflow/domain"
   },
   "repository": {
     "type": "git",

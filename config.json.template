@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "sprintflow": {
+      "command": "node",
+      "args": ["C:/Users/gpgun/OneDrive/Desktop/SprintFlow-MCP/dist/index.js"],
+      "env": {
+        "DATABASE_URL": "YOUR_DATABASE_URL"
+      }
+    }
+  }
+}

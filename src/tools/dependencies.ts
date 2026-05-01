@@ -1,9 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { db } from "@sprintflow/domain/src/db/index.js";
-import { taskDependenciesTable, tasksTable } from "@sprintflow/domain/src/db/schema.js";
-import { and, eq, isNull, inArray } from "drizzle-orm";
-import { addTaskDependency, listBlockedTasks, listTaskDependency, removeTaskDependency } from "@sprintflow/domain";
+import { 
+  addTaskDependency, 
+  listBlockedTasks, 
+  listTaskDependency, 
+  removeTaskDependency 
+} from "@sprintflow/domain";
 
 export function registerDependencyTools(server: McpServer) {
   server.registerTool(

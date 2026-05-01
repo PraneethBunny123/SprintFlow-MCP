@@ -5,13 +5,10 @@ import {
   TaskDependenciesTable as TaskDependenciesTableSelect,
   TasksTable as TasksTableSelect
 } from "../db/schema.js";
-import { and, eq, isNull, inArray } from "drizzle-orm";
+import { TaskServiceResult } from "./taskService.js";
+import { and, eq, inArray } from "drizzle-orm";
 
 export type DependencyServiceResult<T> = 
-  | { ok: true, data: T }
-  | { ok: false, message: string }
-
-export type BlockedTasksResult<T> = 
   | { ok: true, data: T }
   | { ok: false, message: string }
 
@@ -98,7 +95,7 @@ export async function listTaskDependency(
 export async function listBlockedTasks(
   projectId: string, 
   sprintId: string | undefined
-) : Promise<BlockedTasksResult<TasksTableSelect[]>> {
+) : Promise<TaskServiceResult<TasksTableSelect[]>> {
   const allProjectTasks = await db
     .select({ id: tasksTable.id, sprintId: tasksTable.sprintId })
     .from(tasksTable)
