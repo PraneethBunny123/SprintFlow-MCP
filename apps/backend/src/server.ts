@@ -1,6 +1,7 @@
 import "dotenv/config"
 import cors from "cors"
 import express from "express"
+import projectsRoute from "./routes/projects.js"
 
 const app = express()
 const PORT = process.env.PORT
@@ -10,6 +11,9 @@ app.use(cors({
   origin: process.env.CLIENT_URL
 }))
 app.use(express.json())
+
+// routes
+app.use("/projects", projectsRoute);
 
 app.get('/health', (_, res) => {
   res.json({ok: true, timestamp: new Date().toISOString()})

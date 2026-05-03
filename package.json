@@ -18,6 +18,9 @@
     "build:backend": "npm run build -w @sprintflow/backend",
     "build:all": "npm run build:domain && npm run build:backend && tsc",
     "dev:backend": "npm run dev -w @sprintflow/backend",
+    "dev:frontend": "npm run dev -w @sprintflow/frontend",
+    
+    "dev:apps": "npm run dev:backend && npm run dev:frontend",
 
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
