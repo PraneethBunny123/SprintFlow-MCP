@@ -17,6 +17,7 @@
     "build:domain": "npm run build -w @sprintflow/domain",
     "build:backend": "npm run build -w @sprintflow/backend",
     "build:all": "npm run build:domain && npm run build:backend && tsc",
+    
     "dev:backend": "npm run dev -w @sprintflow/backend",
     "dev:frontend": "npm run dev -w @sprintflow/frontend",
     
@@ -39,13 +40,10 @@
     "@sprintflow/domain": "*",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "dotenv": "^17.4.1",
-    "drizzle-orm": "^0.45.2",
-    "pg": "^8.20.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^25.5.0",
-    "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"

@@ -1,5 +1,12 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from "path"
+import { fileURLToPath } from 'url';
 import pg from 'pg';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: path.resolve(__dirname, '../../.env') })
+
+console.log('DATABASE_URL: ', process.env.DATABASE_URL)
 
 const client = new pg.Client({
   connectionString: process.env.DATABASE_URL,
