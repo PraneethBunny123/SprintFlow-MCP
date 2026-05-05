@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { createProject } from "@sprintflow/domain"
+import { createProject, listProjects } from "@sprintflow/domain"
 
 const router = Router()
 
@@ -19,5 +19,16 @@ router.post("/create", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+router.get("/list", async (_, res) => {
+  try {
+    console.log("[/projects/list] calling listProjects...");
+    const allProjects = await listProjects()
+    console.log("[/projects/list] success:", allProjects);
+    res.status(200).json({ message: "get all projects", data: allProjects });
+  } catch(err) {
+
+  }
+})
 
 export default router;
