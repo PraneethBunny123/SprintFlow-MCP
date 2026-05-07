@@ -27,7 +27,8 @@ router.get("/list", async (_, res) => {
     console.log("[/projects/list] success:", allProjects);
     res.status(200).json({ message: "get all projects", data: allProjects });
   } catch(err) {
-
+    console.error("[/projects/list] ERROR:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 })
 
