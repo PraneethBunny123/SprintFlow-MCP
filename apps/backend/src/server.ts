@@ -4,6 +4,7 @@ import express from "express";
 import projectsRoute from "./routes/projects.js"
 import tasksRoute from "./routes/tasks.js"
 import sprintsRoute from "./routes/sprints.js";
+import dependenciesRoute from "./routes/dependencies.js";
 
 // Catch anything that escapes try/catch
 process.on('uncaughtException', (err) => {
@@ -24,6 +25,7 @@ app.use(express.json())
 app.use("/projects", projectsRoute);
 app.use("/tasks", tasksRoute);
 app.use("/sprints", sprintsRoute);
+app.use("/dependencies", dependenciesRoute)
 
 app.get('/health', (_, res) => {
   res.json({ok: true, timestamp: new Date().toISOString()})
