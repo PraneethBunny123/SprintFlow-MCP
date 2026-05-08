@@ -3,6 +3,7 @@ import cors from "cors"
 import express from "express";
 import projectsRoute from "./routes/projects.js"
 import tasksRoute from "./routes/tasks.js"
+import sprintsRoute from "./routes/sprints.js";
 
 // Catch anything that escapes try/catch
 process.on('uncaughtException', (err) => {
@@ -22,6 +23,7 @@ app.use(express.json())
 // routes
 app.use("/projects", projectsRoute);
 app.use("/tasks", tasksRoute);
+app.use("/sprints", sprintsRoute);
 
 app.get('/health', (_, res) => {
   res.json({ok: true, timestamp: new Date().toISOString()})
