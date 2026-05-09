@@ -3,7 +3,7 @@ import { createProject, listProjects } from "@sprintflow/domain"
 
 const router = Router()
 
-router.post("/create", async (req, res) => {
+router.post("/", async (req, res) => {
   console.log("[/projects/create] body:", req.body);
   try {
     const { name, description } = req.body;
@@ -20,7 +20,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
-router.get("/list", async (_, res) => {
+router.get("/", async (_, res) => {
   try {
     console.log("[/projects/list] calling listProjects...");
     const allProjects = await listProjects()

@@ -3,7 +3,7 @@ import { createTask, deleteTask, listBacklogTasks, listSprintTasks, listTasks, m
 
 const router = Router()
 
-router.post("/create", async (req, res) => {
+router.post("/", async (req, res) => {
   console.log("[/projects/create] body:", req.body);
   try {
     const input = req.body;
@@ -19,7 +19,7 @@ router.post("/create", async (req, res) => {
     console.log("[/tasks/create] calling createTask...");
     const result = await createTask(input);
 
-    if(!result.ok) {
+    if(!result.ok) { 
       return res.status(400).json({ message: result.message });
     }
 
@@ -44,14 +44,14 @@ router.get("/", async (req, res) => {
     const tasks = await listTasks(projectId);
 
     console.log("[/tasks?projectId] success:", tasks);
-    res.status(201).json({ message: "get all tasks", data: tasks });
+    res.status(200).json({ message: "get all tasks", data: tasks });
   } catch (err) {
     console.error("[/tasks?projectId] ERROR:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 });
 
-router.post("/backlog", async (req, res) => {
+router.get("/backlog", async (req, res) => {
   console.log("[/tasks/backlog?projectId] query:", req.query);
   try {
     const { projectId } = req.query;
@@ -64,10 +64,51 @@ router.post("/backlog", async (req, res) => {
     const backlogs = await listBacklogTasks(projectId);
 
     console.log("[/tasks/backlog?projectId] success:", backlogs);
-    res.status(201).json({ message: "get backlog tasks", data: backlogs });
+    res.status(200).json({ message: "get backlog tasks", data: backlogs });
   } catch (err) {
     console.error("[/tasks/backlog?projectId] ERROR:", err);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.patch("/reorder", async (req, res) => {
+  try {
+    const { projectId, sprintId, taskIds } = req.body;
+
+    if (!projectId || typeof projectId !== "string") {
+      return res.status(400).json({
+        message: "projectId is required",
+      });
+    }
+
+    if (!Array.isArray(taskIds) || taskIds.length === 0) {
+      return res.status(400).json({
+        message: "taskIds must be a non-empty array",
+      });
+    }
+
+    const result = await reorderTasks({
+      projectId,
+      sprintId,
+      taskIds,
+    });
+
+    if (!result.ok) {
+      return res.status(400).json({
+        message: result.message,
+      });
+    }
+
+    res.status(200).json({
+      message: "Tasks reordered successfully",
+      data: result.data,
+    });
+  } catch (err) {
+    console.error("[/tasks/reorder] ERROR:", err);
+
+    res.status(500).json({
+      message: "Internal server error",
+    });
   }
 });
 
@@ -128,44 +169,24 @@ router.patch("/:id/backlog", async (req, res) => {
   }
 })
 
-router.patch("/reorder", async (req, res) => {
+router.get("/sprint/:sprintId", async (req, res) => {
+  console.log("[GET /tasks/sprint/:sprintId] params:", req.params);
   try {
-    const { projectId, sprintId, taskIds } = req.body;
+    const { sprintId } = req.params;
 
-    if (!projectId || typeof projectId !== "string") {
-      return res.status(400).json({
-        message: "projectId is required",
-      });
+    if (!sprintId) {
+      return res.status(400).json({ message: "sprintId is required" });
     }
 
-    if (!Array.isArray(taskIds) || taskIds.length === 0) {
-      return res.status(400).json({
-        message: "taskIds must be a non-empty array",
-      });
-    }
+    const tasks = await listSprintTasks(sprintId);
 
-    const result = await reorderTasks({
-      projectId,
-      sprintId,
-      taskIds,
-    });
-
-    if (!result.ok) {
-      return res.status(400).json({
-        message: result.message,
-      });
-    }
-
-    res.status(200).json({
-      message: "Tasks reordered successfully",
-      data: result.data,
+    return res.status(200).json({
+      message: "sprint tasks fetched successfully",
+      data: tasks,
     });
   } catch (err) {
-    console.error("[/tasks/reorder] ERROR:", err);
-
-    res.status(500).json({
-      message: "Internal server error",
-    });
+    console.error("[GET /tasks/sprint/:sprintId] ERROR:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 

@@ -106,7 +106,7 @@ export async function listBlockedTasks(
     .map((t) => t.id)
 
   if(laneTaskIds.length === 0) {
-    return { ok: false, message: "[]" }
+    return { ok: true, data: [] }
   }
 
   const blockedEdges = await db

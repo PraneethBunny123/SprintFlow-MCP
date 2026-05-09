@@ -119,9 +119,6 @@ router.get("/:taskId", async (req, res) => {
   }
 });
 
-//
-// LIST BLOCKED TASKS
-//
 router.get("/blocked/list", async (req, res) => {
   console.log("[GET /dependencies/blocked/list] query:", req.query);
 
