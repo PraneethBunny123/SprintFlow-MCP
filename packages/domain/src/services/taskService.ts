@@ -286,12 +286,13 @@ export async function reorderTasks(input: {
     }
   }
 
-  for (let i = 0; i < taskIds.length; i++) {
-    await db
-      .update(tasksTable)
-      .set({ sortOrder: i, updatedAt: new Date() })
-      .where(eq(tasksTable.id, taskIds[i]!));
-  }
+  await db.transaction(async (tx) => {
+    for (let i = 0; i < taskIds.length; i++) {
+      await tx.update(tasksTable)
+        .set({ sortOrder: i, updatedAt: new Date() })
+        .where(eq(tasksTable.id, taskIds[i]!));
+    }
+  });
 
   const ordered = await db
     .select()

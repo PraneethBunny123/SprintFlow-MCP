@@ -1,7 +1,10 @@
 import "./load-env.js"
 import cors from "cors"
-import express from "express"
+import express from "express";
 import projectsRoute from "./routes/projects.js"
+import tasksRoute from "./routes/tasks.js"
+import sprintsRoute from "./routes/sprints.js";
+import dependenciesRoute from "./routes/dependencies.js";
 
 // Catch anything that escapes try/catch
 process.on('uncaughtException', (err) => {
@@ -14,9 +17,15 @@ process.on('unhandledRejection', (reason, promise) => {
 const app = express()
 const PORT = process.env.PORT
 
+// middleware
 app.use(cors({ origin: process.env.CLIENT_URL }))
 app.use(express.json())
+
+// routes
 app.use("/projects", projectsRoute);
+app.use("/tasks", tasksRoute);
+app.use("/sprints", sprintsRoute);
+app.use("/dependencies", dependenciesRoute)
 
 app.get('/health', (_, res) => {
   res.json({ok: true, timestamp: new Date().toISOString()})
