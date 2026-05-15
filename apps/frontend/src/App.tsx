@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Button } from "@/components/ui/button"
 
 function App() {
   const [health, setHealth] = useState<string | null>(null)
@@ -23,9 +24,9 @@ function App() {
       Hello SprintFlowMCP
 
       <div className="flex border rounded-lg bg-amber-100 p-6 items-center gap-5">
-        <button onClick={handleButtonClick} className="bg-pink-300 text-white w-50 h-15 rounded-lg cursor-pointer">
+        <Button onClick={handleButtonClick} className="cursor-pointer">
           <p className="text-md">{loading ? "Checking..." : "Check Health"}</p>
-        </button>
+        </Button>
         {health && <p className="text-md text-slate-800">{health}</p>}
       </div>
     </div>
