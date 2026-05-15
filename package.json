@@ -20,8 +20,6 @@
     
     "dev:backend": "npm run dev -w @sprintflow/backend",
     "dev:frontend": "npm run dev -w @sprintflow/frontend",
-    
-    "dev:apps": "npm run dev:backend && npm run dev:frontend",
 
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
