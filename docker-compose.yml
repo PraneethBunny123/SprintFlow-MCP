@@ -22,6 +22,8 @@ services:
       - "5000:5000"
     env_file:
       - .env
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/sprintflow
     volumes:
       - .:/app
       - /app/node_modules
