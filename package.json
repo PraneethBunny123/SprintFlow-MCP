@@ -13,16 +13,20 @@
     "build": "npm run build:domain && tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
+
     "build:domain": "npm run build -w @sprintflow/domain",
     "build:backend": "npm run build -w @sprintflow/backend",
     "build:all": "npm run build:domain && npm run build:backend && tsc",
+    
     "dev:backend": "npm run dev -w @sprintflow/backend",
     "dev:frontend": "npm run dev -w @sprintflow/frontend",
     "dev:apps": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:push": "drizzle-kit push",
+    
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:reset": "docker compose down -v && docker compose up --build",
